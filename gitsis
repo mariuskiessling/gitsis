@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+
+# For usage information see https://github.com/mariuskiessling/gitsis
+
+set -ef -o pipefail
+
+# Associative arrays cannot be easily passed to functions/returned from them in
+# bash (sigh). Thus, we will have to define it globally.
+# Onwers will hold all repository owners (as keys) and their respective
+# identity files, if set in the config, as values.
+declare -A owners
+
+debug() {
+  if [[ -v $GITSIS_DEBUG ]]; then
+    echo "$(date) $1" >> /tmp/gitsis.log
+  fi
+}
+
+expand_identity_file() {
+  # We will allow users to reference their identity file in the config using
+  # the ~ sign and expand it to the user's absolute home directory path.
+  home=$HOME
+
+  echo "${1/\~/$home}"
+}
+
+find_config() {
+  if [[ -v $XDG_CONFIG_HOME ]]; then
+    config_file="$XDG_CONFIG_HOME/gitsis/config.json"
+  else
+    config_file="$HOME/.config/gitsis/config.json"
+  fi
+
+  if [[ -f "$config_file" ]]; then
+    echo "$config_file"
+  else
+    printf "\nFailed to find a config file for gitsis! Make sure that the file exists in\n" >&2
+    printf "\$XDG_CONFIG_HOME/gitsis/config.json or ~/.config/gitsis/config.json.\n\n" >&2
+    exit 1
+  fi
+}
+
+parse_config() {
+  config_file="$1"
+
+  # We have to disable the strict error checking here because we expect the jq
+  # command to fail in case the config file is invalid but are still interested
+  # int the exit code. Thus, `|| true` is no option.
+  set +e
+
+  err=$(jq -e . "$config_file" 2>&1)
+
+  if (( $? == 4 )); then
+    printf "\nFailed to load the gitsis config file:\n%s \n\n" >&2 "$err"
+    exit 1
+  fi
+
+  # From now on, all errors should exit again.
+  set -e
+
+  c=$(jq '.owners | to_entries | .[]' "$config_file" -c)
+
+  for owner in $c; do
+    key=$(echo "$owner" | jq '.key' -r)
+    value=$(echo "$owner" | jq '.value' -r)
+    value=$(expand_identity_file "$value")
+    owners[$key]="$value"
+  done
+}
+
+find_identity_by_owner() {
+  regex="([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+)\.git"
+  arguments=$1
+
+  if [[ $arguments == "" ]]; then
+    echo ""
+    debug "Cannot determine repository and owner from empty arguments"
+
+    return
+  fi
+
+  if [[ $arguments =~ $regex ]]; then
+    owner=${BASH_REMATCH[1]}
+    repo=${BASH_REMATCH[2]}
+
+    debug "Found owner $owner for repository $repo inside arguments"
+  else
+    echo ""
+    debug "Found no repository and owner inside arguments"
+
+    return
+  fi
+
+  if [[ ${owners[$owner]} ]]; then
+    echo "${owners[$owner]}"
+    return
+  else
+    echo ""
+    debug "Owner $owner has no identity file set in the config"
+
+    return
+  fi
+}
+
+construct_argument_list() {
+  original=$1
+  identity_file=$2
+
+  if [[ $identity_file == "" ]]; then
+    debug "Using the original arguments for SSH"
+    echo "$original"
+  else
+    debug "Injecting the identity file $identity_file into the SSH arguments"
+    echo "-i $identity_file $original"
+  fi
+}
+
+debug "New invocation with arguments: $*"
+
+config_file=$(find_config)
+parse_config "$config_file"
+identity_file=$(find_identity_by_owner "$*")
+arguments=$(construct_argument_list "$*" "$identity_file")
+
+# At this point, word splitting and globbing is fine and actually needed to
+# invoke SSH.
+ssh $arguments
