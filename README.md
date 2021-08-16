@@ -52,8 +52,12 @@ to `/tmp/gitsis.log`.
     * [Bash](https://www.gnu.org/software/bash/) (>= v4.2)
     * [jq](https://stedolan.github.io/jq/)
 
-   On MacOS you can install both using [↗ `brew`](https://brew.sh/) by running
-   the following command:
+   > :information_source: In case you run MacOS and want to install _gitsis_
+   > using [↗ `brew`](https://brew.sh/), jump straight to step 2. Brew will
+   > also handle the installation of dependencies.
+
+   On MacOS you can install both dependencies using `brew` by running the
+   following command:
    ```
    brew install bash jq
    ```
