@@ -18,11 +18,11 @@ This pattern however quickly breaks down in the context of Git where a remote's
 host is often the same (e.g. `github.com`) regardless of the repository you are
 working on. It is still possible to control the used key used by SSH but this
 requires a workaround that either has to be set on the [↗
-repository](https://www.fabian-keller.de/blog/configuring-a-different-ssh-key-per-git-repository/)or
-[↗ remote](https://stackoverflow.com/a/11251797) level. I personally find both
-options unsatisfying because each one of them requires additional steps in my
-Git workflow when I set up a repository locally. This :star: should just work
-:star2: out of the box every time.
+repository](https://www.fabian-keller.de/blog/configuring-a-different-ssh-key-per-git-repository/)
+or [↗ remote](https://stackoverflow.com/a/11251797) level. I personally find
+both options unsatisfying because each one of them requires additional steps in
+my Git workflow when I set up a repository locally. This :star: should just
+work :star2: out of the box every time.
 
 Using the _wrong_ identity is especially a problem when only a subset of your
 identities is [authorized for SSO
@@ -109,7 +109,7 @@ _gitsis_ uses a JSON configuration file. The order in which the file is
 discovered is:
 
 1. `$XDG_CONFIG_HOME/gitsis/config.json`
-2. `$HOME/gitsis/config.json`
+2. `$HOME/.config/gitsis/config.json`
 
 The following properties may be set inside the configuration file:
 
