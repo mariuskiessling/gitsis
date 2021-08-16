@@ -135,7 +135,7 @@ config file can look like this:
 {
   "owners": {
     "MY-GITHUB-USERNAME": "~/.ssh/id_personal",
-    "mega-corp": "~/.ssh/id_mega_corp",
+    "mega-corp": "~/.ssh/id_mega_corp"
   }
 }
 ```
