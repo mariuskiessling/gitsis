@@ -52,7 +52,8 @@ to `/tmp/gitsis.log`.
     * [Bash](https://www.gnu.org/software/bash/) (>= v4.2)
     * [jq](https://stedolan.github.io/jq/)
 
-   On MacOS you can install both using `brew` by running the following command:
+   On MacOS you can install both using [↗ `brew`](https://brew.sh/) by running
+   the following command:
    ```
    brew install bash jq
    ```
@@ -66,11 +67,18 @@ to `/tmp/gitsis.log`.
    To install the dependencies on any other operating system/using any other
    package manager, please consult the respective documentation.
 
-2. Download _gitsis_ into a directory that is inside your `PATH` and mark it as
-   executable. A good default is `/usr/local/bin`. Depending on your system
-   setup, you need root privileges to write to this directory. In such a case,
-   prefix the following commands with `sudo` or consult the documentation of
-   your operating system.
+2. Download and install _gitsis_. In case you run MacOS and use `brew`, you can
+   do this by executing the following command:
+
+   ```
+   brew install mariuskiessling/gitsis/gitsis
+   ```
+
+   Alternatively, you can directly download _gitsis_ into a directory that is
+   inside your `PATH` and mark it as executable. A good default is
+   `/usr/local/bin`. Depending on your system setup, you need root privileges
+   to write to this directory. In such a case, prefix the following commands
+   with `sudo` or consult the documentation of your operating system.
 
    ```
    curl -o /usr/local/bin/gitsis https://raw.githubusercontent.com/mariuskiessling/gitsis/main/gitsis
