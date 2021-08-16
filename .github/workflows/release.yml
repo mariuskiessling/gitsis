@@ -1,0 +1,27 @@
+name: Create release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Extract tag name
+        id: extract_tag
+        run: echo "::set-output name=tag::${GITHUB_REF#refs/tags/}"
+      - name: Extract release notes
+        id: extract_release_notes
+        run: |
+          notes=$(git tag -l --format='%(body)' "${{ steps.extract_tag.outputs.tag }}")
+          echo $notes > release_notes.txt
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release_notes.txt
+          files: gitsis
