@@ -4,6 +4,21 @@
 
 set -ef -o pipefail
 
+# This is a workaround to ensure that homebrew can successfully clone
+# repositories (e.g. for tapping). Homebrew starts the git command in a
+# sandboxed shell which PATH is not set. Thus, env falls back to /bin/bash in
+# the shebang of this script. This version of bash does not support all
+# features that are needed, namely associative arrays. Thus, for now, we will
+# simply detect that we run in a shell spawned by Homebrew and directly hand
+# the command over to ssh without doing any argument substitution. This may
+# break the SSH command for those users who use different SSH keys to manage
+# their formula repositories. For most users that only consume formula
+# repositories or use one SSH key, this has no impact.
+if [[ -n $HOMEBREW_VERSION ]]; then
+  ssh $*
+  exit $?
+fi
+
 # Associative arrays cannot be easily passed to functions/returned from them in
 # bash (sigh). Thus, we will have to define it globally.
 # Onwers will hold all repository owners (as keys) and their respective
